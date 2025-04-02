@@ -37,7 +37,7 @@ Instructors can:
 
 ### Video Demo
 
-https://github.com/mruckman1/barrys-song-suggestion/blob/main/assets/SongSuggestionDemo.mp4
+<video src="https://github.com/mruckman1/BarrysSongSuggestionPoC/raw/main/assets/SongSuggestionDemo.mp4" controls="controls" muted="muted" style="max-width:100%"></video>
 
 ### Screenshots
 
