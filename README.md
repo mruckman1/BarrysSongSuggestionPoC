@@ -1,201 +1,124 @@
+# Barry's Bootcamp Song Suggestion System
+
+A proof-of-concept application that enables Barry's Bootcamp participants to suggest songs for their classes and instructors to manage these suggestions efficiently.
+
 ## Overview
 
-This application allows Barry's Bootcamp participants to suggest songs for their workout classes and instructors to review, approve, or reject these suggestions. It's designed as a Proof of Concept (PoC) to demonstrate the viability of enhancing participant engagement through music suggestions.
+This application bridges the gap between participants and instructors at Barry's Bootcamp, creating a more engaging and personalized class experience. Participants can search for and suggest songs via Spotify integration, while instructors can review, approve, or reject these suggestions before adding them to their playlists.
 
 ## Features
 
-### Participant View
-- Search for songs via Spotify API
-- View song details (title, artist, album cover)
-- Submit song suggestions for your classes
-- Track your monthly suggestion quota
+- **Participant Song Suggestions**: Search Spotify and suggest songs for specific classes
+- **Suggestion Quota System**: Each participant has a limited number of suggestions per month
+- **Instructor Review Interface**: View, filter, approve, or reject song suggestions
+- **Spotify Integration**: Search for songs and preview them before suggesting
+- **Responsive Design**: Works on both desktop and mobile devices
 
-### Instructor View
-- View all song suggestions for your classes
-- Filter suggestions by status (pending, approved, rejected)
-- Approve or reject pending suggestions
-- (Future feature) Add approved songs directly to Spotify playlists
-
-## Technology Stack
-
-### Frontend
-- React with TypeScript
-- Vite for build tooling
-- Material UI (MUI) for UI components
-- Axios for API requests
-
-### Backend
-- Python with FastAPI
-- MongoDB for database storage
-- Motor for asynchronous MongoDB interaction
-- Spotify Web API integration
-
-### Infrastructure
-- Docker and Docker Compose for containerization
-- Environment variables for configuration
-
-## Getting Started
-
-### Prerequisites
-- Docker and Docker Compose
-- Spotify Developer Account (for API credentials)
-
-### Installation
-
-1. Clone the repository
-```bash
-git clone <repository-url>
-cd barrys-song-suggestion
-```
-
-2. Create a `.env` file in the project root with your Spotify API credentials
-```bash
-SPOTIFY_CLIENT_ID=your_spotify_client_id
-SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
-MONGODB_DB_NAME=barrys_suggestions_poc
-```
-
-3. Start the application using Docker Compose
-```bash
-docker-compose up -d
-```
-
-4. Seed the database with initial data (if not automatically seeded)
-```bash
-docker-compose exec mongo mongosh barrys_suggestions_poc
-
-# Then in the MongoDB shell, paste:
-db.quotas.insertOne({
-    "user_id": "user123", 
-    "month_year": new Date().toISOString().substring(0,7), 
-    "total_quota": 5, 
-    "remaining_quota": 5
-});
-
-db.suggestions.insertMany([
-    {
-        "participant_id": "user123",
-        "instructor_id": "instructor456",
-        "class_id": "class789",
-        "spotify_uri": "spotify:track:4iJyoBOLtHqaGxP12qzhQI",
-        "song_name": "Blinding Lights",
-        "artist_name": "The Weeknd",
-        "album_cover_url": "https://i.scdn.co/image/ab67616d0000b2738863bc11d2aa12b54f5aeb36",
-        "suggestion_date": new Date(),
-        "status": "pending"
-    },
-    {
-        "participant_id": "user123",
-        "instructor_id": "instructor456",
-        "class_id": "class789",
-        "spotify_uri": "spotify:track:6UelLqGlWMcVH1E5c4H7lY",
-        "song_name": "Watermelon Sugar",
-        "artist_name": "Harry Styles",
-        "album_cover_url": "https://i.scdn.co/image/ab67616d0000b273da5d5aeeabacacc1263c0f4b",
-        "suggestion_date": new Date(),
-        "status": "approved"
-    },
-    {
-        "participant_id": "user123",
-        "instructor_id": "instructor456",
-        "class_id": "class789",
-        "spotify_uri": "spotify:track:0E4Y1XIbs8GrAT1YqVy6dq",
-        "song_name": "Don't Start Now",
-        "artist_name": "Dua Lipa",
-        "album_cover_url": "https://i.scdn.co/image/ab67616d0000b2734d4cdef17fc2ce7289ece9fc",
-        "suggestion_date": new Date(),
-        "status": "rejected"
-    }
-]);
-```
-
-5. Access the application at http://localhost:3000
-
-## Usage
+## User Experience
 
 ### Participant View
-1. Select the "Participant View" tab
-2. Check your remaining suggestion quota
-3. Search for a song by title or artist
-4. Click on a song in the results to suggest it
-5. You'll receive confirmation when your suggestion is submitted
+
+Participants can:
+1. **View their quota**: See how many song suggestions remain for the current month
+2. **Search for songs**: Type a song title or artist to search Spotify's library
+3. **Preview results**: View song details including title, artist, and album artwork
+4. **Submit suggestions**: Suggest songs for their upcoming classes
+5. **Receive feedback**: Get instant confirmation when suggestions are submitted
 
 ### Instructor View
-1. Select the "Instructor View" tab
-2. Browse pending suggestions
-3. Click "Approve" or "Reject" to update suggestion status
-4. Use the status filter to view suggestions by their current status
 
-## Project Structure
+Instructors can:
+1. **View all suggestions**: Browse through songs suggested by participants
+2. **Filter suggestions**: Filter by status (pending, approved, rejected)
+3. **Manage suggestions**: Approve or reject song suggestions
+4. **Preview future integration**: See placeholder for adding songs directly to Spotify playlists
+
+## Demo
+
+### GIF Demo
+
+[Insert GIF demonstration of the application here]
+
+### Screenshots
+
+#### Participant View
+![App screenshot](assets/ParticipantView.png)
+
+#### Instructor View
+![App screenshot](assets/InstructorView.png)
+
+## Technical Details
+
+### Architecture
+
+The application follows a modern client-server architecture:
 
 ```
-├── backend/
-│   ├── app.py                 # FastAPI application entry point
-│   ├── database.py            # MongoDB connection management
-│   ├── models.py              # Pydantic data models
-│   ├── spotify.py             # Spotify API integration
-│   ├── seed_data.py           # Database seeding functionality
-│   └── direct_seed.py         # Standalone seeding script
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── SongSearch.tsx     # Participant view component
-│   │   │   └── SuggestionList.tsx # Instructor view component
-│   │   ├── services/
-│   │   │   └── api.ts             # Backend API client
-│   │   ├── App.tsx                # Main application component
-│   │   └── main.tsx               # Application entry point
-│   ├── index.html                 # HTML template
-│   └── vite.config.ts             # Vite configuration
-├── docker-compose.yml         # Docker Compose configuration
-└── seed.js                    # MongoDB seeding script
+┌─────────────┐       ┌─────────────┐       ┌─────────────┐
+│   Frontend  │ ───▶  │   Backend   │ ───▶  │   Spotify   │
+│   (React)   │ ◀───  │  (FastAPI)  │ ◀───  │     API     │
+└─────────────┘       └─────────────┘       └─────────────┘
+                            │
+                            ▼
+                      ┌─────────────┐
+                      │  Database   │
+                      │  (MongoDB)  │
+                      └─────────────┘
 ```
 
-## Development Notes
+### Technologies Used
 
-### Phase 1 Implementation
-- Core functionality implemented: search, suggest, review
-- Quota system mocked with MongoDB storage
-- Basic UI with Material UI components
+#### Frontend
+- **React**: User interface library
+- **TypeScript**: Type-safe JavaScript
+- **Material UI**: Component library for consistent design
+- **Vite**: Fast build tooling
 
-### Mock Data
-For the PoC, the application uses fixed mock IDs:
-- User ID: `user123`
-- Instructor ID: `instructor456`
-- Class ID: `class789`
+#### Backend
+- **FastAPI**: Modern Python web framework
+- **Motor**: Asynchronous MongoDB driver for Python
+- **Spotify Web API**: For song search and metadata
 
-## Future Enhancements
+#### Infrastructure
+- **Docker**: Containerization for easy deployment
+- **MongoDB**: NoSQL database for flexible data storage
 
-### Phase 2
-- Authentication integration with Barry's existing system
-- Real quota calculation based on class attendance
-- Enhanced UI styling to match Barry's branding
+### Setup and Installation
 
-### Phase 3
-- Instructor Spotify playlist integration
-- User history and suggestion tracking
-- Mobile-optimized responsive design
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/barrys-song-suggestion.git
+   cd barrys-song-suggestion
+   ```
 
-### Phase 4
-- Analytics dashboard for music preferences
-- Automated playlist generation based on popular suggestions
-- Integration with in-studio audio systems
+2. **Set up environment variables**
+   ```bash
+   # Create .env file at the root
+   cp .env.example .env
+   
+   # Add your Spotify API credentials
+   SPOTIFY_CLIENT_ID=your_client_id_here
+   SPOTIFY_CLIENT_SECRET=your_client_secret_here
+   ```
 
-## Contributing
+3. **Start the application with Docker**
+   ```bash
+   docker-compose up
+   ```
 
-### Development Workflow
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+4. **Access the application**
+   - Frontend: http://localhost:3000
+   - Backend API: http://localhost:8000
 
-### Code Style
-- Frontend: ESLint and Prettier
-- Backend: Black and Flake8
+### API Documentation
 
-## License
+The backend exposes the following endpoints:
 
-[MIT License]
+- `GET /spotify/search`: Search songs on Spotify
+- `GET /suggestions/`: Get song suggestions with optional filters
+- `POST /suggestions/`: Submit a new song suggestion
+- `PATCH /suggestions/{id}`: Update suggestion status
+- `GET /quota/{user_id}`: Check participant's remaining suggestion quota
 
 ## Acknowledgments
 
