@@ -37,7 +37,7 @@ Instructors can:
 
 ### Video Demo
 
-<video src="https://github.com/mruckman1/BarrysSongSuggestionPoC/raw/main/assets/SongSuggestionDemo.mp4" controls="controls" muted="muted" style="max-width:100%"></video>
+![Demo Animation](assets/SongSuggestionDemo.gif)
 
 ### Screenshots
 
@@ -87,7 +87,7 @@ The application follows a modern client-server architecture:
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/barrys-song-suggestion.git
+   git clone https://github.com/mruckman1/barrys-song-suggestion.git
    cd barrys-song-suggestion
    ```
 
