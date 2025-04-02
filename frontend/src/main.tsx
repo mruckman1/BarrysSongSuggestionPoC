@@ -8,6 +8,9 @@ import './index.css';     // Import global CSS
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
+// --- NEW: Import BrowserRouter ---
+import { BrowserRouter } from 'react-router-dom';
+
 // Create a basic default MUI theme (can be customized later)
 const theme = createTheme({
   // You can customize palette, typography, etc. here
@@ -26,10 +29,14 @@ const rootElement = document.getElementById('root');
 if (rootElement) {
   ReactDOM.createRoot(rootElement).render(
     <React.StrictMode>
-      <ThemeProvider theme={theme}>
-        <CssBaseline /> {/* Normalizes browser styles */}
-        <App /> {/* Render the main App component */}
-      </ThemeProvider>
+      {/* --- NEW: Wrap with BrowserRouter --- */}
+      <BrowserRouter>
+        <ThemeProvider theme={theme}>
+          <CssBaseline /> {/* Normalizes browser styles */}
+          <App /> {/* Render the main App component */}
+        </ThemeProvider>
+      </BrowserRouter>
+      {/* --- End BrowserRouter wrapper --- */}
     </React.StrictMode>,
   );
 } else {

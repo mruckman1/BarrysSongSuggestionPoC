@@ -2,6 +2,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import debounce from 'lodash.debounce';
 import api, { Song } from '../services/api';
+// --- Import hooks for routing ---
+import { useParams, useNavigate } from 'react-router-dom';
 
 // MUI Imports
 import Box from '@mui/material/Box';
@@ -20,32 +22,37 @@ import Snackbar from '@mui/material/Snackbar';
 import Alert, { AlertColor } from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
+// Removed Button import as we use IconButton for back
 
 // MUI Icon Imports
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
 import MusicNoteIcon from '@mui/icons-material/MusicNote';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'; // Icon for Back button
 
 interface SongSearchProps {
   userId: string;
-  classId: string;
+  // classId is now retrieved from URL params, remove from props
 }
 
-const SongSearch: React.FC<SongSearchProps> = ({ userId, classId }) => {
+// Update component definition to accept props
+const SongSearch: React.FC<SongSearchProps> = ({ userId }) => {
+  // --- Get classId from URL and navigate function ---
+  const { classId } = useParams<{ classId: string }>(); // Get classId from route parameter
+  const navigate = useNavigate(); // Hook for navigation
+
+  // State hooks (remain the same)
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Song[]>([]);
-  // Separate Loading States
   const [isQuotaLoading, setIsQuotaLoading] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState<string | null>(null); // Store ID of song being submitted
-  // ---
+  const [isSubmitting, setIsSubmitting] = useState<string | null>(null);
   const [quota, setQuota] = useState<number | null>(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>('info');
 
-
-  // --- Load initial quota ---
+  // --- Load initial quota (remains the same) ---
   useEffect(() => {
     let isMounted = true;
     setIsQuotaLoading(true);
@@ -69,15 +76,15 @@ const SongSearch: React.FC<SongSearchProps> = ({ userId, classId }) => {
   }, [userId]);
 
 
-  // --- Debounced Search Function ---
+  // --- Debounced Search Function (remains the same) ---
   const performSearch = async (searchQuery: string) => {
       if (!searchQuery.trim()) {
           setResults([]);
-          setIsSearching(false); // Ensure searching is false if query is cleared
+          setIsSearching(false);
           return;
       }
       console.log(`Performing search for: ${searchQuery}`);
-      setIsSearching(true); // Set searching TRUE right before API call
+      setIsSearching(true);
       try {
           const songs = await api.searchSongs(searchQuery);
           setResults(songs);
@@ -88,27 +95,21 @@ const SongSearch: React.FC<SongSearchProps> = ({ userId, classId }) => {
           setSnackbarOpen(true);
           setResults([]);
       } finally {
-          setIsSearching(false); // Set searching FALSE after API call completes (success or fail)
+          setIsSearching(false);
       }
   };
 
-  // Use useCallback for the debounced version
   const debouncedSearch = useCallback(debounce(performSearch, 500), []);
 
 
-  // --- Effect to trigger debounced search ---
+  // --- Effect to trigger debounced search (remains the same) ---
   useEffect(() => {
-    // Trigger the debounced function when query changes
     debouncedSearch(query);
-
-    // If query is empty, clear results immediately and cancel any pending search
     if (!query.trim()) {
-        setIsSearching(false); // Explicitly set searching to false
+        setIsSearching(false);
         setResults([]);
         debouncedSearch.cancel();
     }
-
-    // Cleanup function for the debounce effect
     return () => {
       debouncedSearch.cancel();
     };
@@ -117,28 +118,35 @@ const SongSearch: React.FC<SongSearchProps> = ({ userId, classId }) => {
 
   // --- Handle Suggestion Submission ---
   const handleSuggestSong = async (song: Song) => {
-    // Check quota first
+    // --- Check if classId exists from URL ---
+    if (!classId) {
+        console.error("Cannot suggest song: classId is missing from URL.");
+        setSnackbarSeverity('error');
+        setSnackbarMessage('Error: Class ID not found. Cannot submit suggestion.');
+        setSnackbarOpen(true);
+        return; // Prevent submission
+    }
+
      if (quota === null || quota <= 0) {
       setSnackbarSeverity('warning');
       setSnackbarMessage('No suggestions remaining this month.');
       setSnackbarOpen(true);
       return;
     }
-    // Prevent clicking if this song or another is already submitting
     if (isSubmitting) {
         console.log("Ignoring suggestion click while another submission is in progress.");
         return;
     }
 
-    setIsSubmitting(song.id); // Set submitting state with the song ID
+    setIsSubmitting(song.id);
     setSnackbarSeverity('info');
     setSnackbarMessage(`Suggesting "${song.name}"...`);
     setSnackbarOpen(true);
 
     try {
+      // --- Pass classId retrieved from useParams ---
       await api.submitSuggestion(song, classId);
 
-      // Success: Update UI
       setSnackbarSeverity('success');
       setSnackbarMessage(`"${song.name}" suggested!`);
       setQuota(prevQuota => (prevQuota !== null ? prevQuota - 1 : 0));
@@ -150,8 +158,6 @@ const SongSearch: React.FC<SongSearchProps> = ({ userId, classId }) => {
         if (error.message === "Quota exceeded") {
             setSnackbarSeverity('warning');
             setSnackbarMessage('Suggestion failed: No quota remaining.');
-            // Optionally refresh quota
-            // setIsQuotaLoading(true); api.checkQuota(userId).then(setQuota).finally(() => setIsQuotaLoading(false));
         } else {
             setSnackbarSeverity('error');
             const detail = error?.response?.data?.detail || `Error suggesting "${song.name}".`;
@@ -160,7 +166,6 @@ const SongSearch: React.FC<SongSearchProps> = ({ userId, classId }) => {
         setSnackbarOpen(true); // Re-open snackbar for error message
     } finally {
         setIsSubmitting(null); // Clear submitting state regardless of outcome
-        // Don't re-open snackbar here, let try/catch handle it
     }
   };
 
@@ -175,13 +180,26 @@ const SongSearch: React.FC<SongSearchProps> = ({ userId, classId }) => {
     setSnackbarOpen(false);
   };
 
+  // --- Handler for Back Button ---
+  const handleGoBack = () => {
+      navigate(-1); // Go back to the previous page (ClassDetailPage)
+  };
+
   // --- Render Component ---
   return (
-    <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
+    // Wrap in Paper for visual consistency if desired (already wrapped in Container in App.tsx)
+    <Paper elevation={0} sx={{ p: { xs: 1, sm: 2 } }}> {/* Use elevation 0 if Container provides bg */}
       <Stack spacing={2}>
-        <Typography variant="h5" component="h2" gutterBottom>
-          Suggest a Song
-        </Typography>
+        {/* --- Back Button and Title --- */}
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+            <IconButton onClick={handleGoBack} aria-label="go back" size="medium" sx={{ mr: 1 }}>
+                <ArrowBackIcon />
+            </IconButton>
+            {/* Adjust title styling as needed */}
+            <Typography variant="h5" component="h2" fontWeight="bold">
+                Suggest a Song
+            </Typography>
+        </Box>
 
         {/* Quota Display */}
         <Box sx={{ minHeight: '24px' }}> {/* Reserve space to prevent layout shift */}
@@ -199,7 +217,6 @@ const SongSearch: React.FC<SongSearchProps> = ({ userId, classId }) => {
                 </Typography>
             )}
         </Box>
-
 
         {/* Search Input */}
         <TextField
@@ -236,7 +253,8 @@ const SongSearch: React.FC<SongSearchProps> = ({ userId, classId }) => {
         />
 
         {/* Results List */}
-        <Box sx={{ maxHeight: '40vh', overflowY: 'auto', minHeight: '50px' }}> {/* Added minHeight */}
+        {/* Adjust maxHeight/minHeight as needed for the layout */}
+        <Box sx={{ maxHeight: '50vh', overflowY: 'auto', minHeight: '150px' }}>
            {/* Show placeholder/loading text only when actively searching */}
            {isSearching && !results.length && (
              <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
@@ -279,10 +297,11 @@ const SongSearch: React.FC<SongSearchProps> = ({ userId, classId }) => {
          {/* Snackbar for Feedback */}
          <Snackbar
             open={snackbarOpen}
-            autoHideDuration={4000}
+            autoHideDuration={4000} // Duration feedback stays visible
             onClose={handleCloseSnackbar}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} // Position
           >
+            {/* Use Alert component inside Snackbar for styling */}
             <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }} variant="filled">
               {snackbarMessage}
             </Alert>
