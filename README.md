@@ -1,6 +1,3 @@
-I'll help you display the MP4 demo file in your README. In GitHub Markdown, you can reference video files in a few different ways. Here's the updated README with the video demo section properly configured:
-
-```markdown
 # Barry's Bootcamp Song Suggestion System
 
 A proof-of-concept application that enables Barry's Bootcamp participants to suggest songs for their classes and instructors to manage these suggestions efficiently.
