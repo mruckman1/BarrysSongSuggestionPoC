@@ -1,0 +1,59 @@
+# docker-compose.yml
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules # Isolate node_modules
+    environment:
+      - NODE_ENV=development
+      - VITE_API_BASE_URL=http://localhost:8000 # Frontend talks to host port 8000
+    command: npm run dev -- --host
+    # Make frontend wait for backend to be healthy (optional but good practice)
+    depends_on:
+      backend:
+        condition: service_started # Or service_healthy if backend has a proper health check
+
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    environment:
+      # Spotify creds read from .env file in the project root
+      - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
+      - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
+      # --- IMPORTANT: Point to the mongo service within Docker network ---
+      - MONGODB_URI=mongodb://mongo:27017
+      - MONGODB_DB_NAME=${MONGODB_DB_NAME:-barrys_suggestions_poc}
+    command: uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+    # --- Make backend depend on the mongo service ---
+    depends_on:
+      - mongo
+
+  # --- Add MongoDB Service ---
+  mongo:
+    image: mongo:latest # Use the official MongoDB image
+    ports:
+      # Map host port 27017 to container port 27017 (for external tools like Compass)
+      - "27017:27017"
+    volumes:
+      # Persist database data outside the container
+      - mongo-data:/data/db
+    # Optional: Add healthcheck if needed by other services, though depends_on is often enough
+    # healthcheck:
+    #   test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+    #   interval: 10s
+    #   timeout: 10s
+    #   retries: 5
+    #   start_period: 40s
+
+# --- Define the named volume for MongoDB data persistence ---
+volumes:
+  mongo-data:

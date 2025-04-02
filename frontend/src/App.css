@@ -1,0 +1,101 @@
+/* frontend/src/App.css */
+.app {
+  max-width: 1200px; /* Keep overall app width */
+  margin: 0 auto;
+  padding: 20px;
+}
+
+header { /* Keep header styles */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+nav button { /* Keep nav button styles (or replace with MUI ButtonGroup later) */
+  margin-left: 10px;
+  padding: 8px 16px;
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+nav button.active {
+  background-color: #0066cc;
+  color: white;
+}
+
+/* Styles below were primarily for SongSearch/SuggestionList internal elements */
+/* Many can likely be removed or commented out as MUI handles them now */
+
+/* .song-search, .suggestion-list { */
+  /* padding: 20px; */ /* Handled by Paper sx prop */
+  /* background-color: #f9f9f9; */ /* Handled by Paper */
+  /* border-radius: 8px; */ /* Handled by Paper */
+/* } */
+
+/* .song-result { */
+  /* display: flex; */ /* Handled by ListItemButton internals */
+  /* align-items: center; */ /* Handled by ListItemButton internals */
+  /* padding: 10px; */ /* Handled by ListItemButton padding */
+  /* margin: 10px 0; */ /* Handled by List spacing */
+  /* background-color: white; */ /* Handled by ListItemButton */
+  /* border-radius: 4px; */ /* Handled by ListItemButton */
+  /* cursor: pointer; */ /* Handled by ListItemButton */
+/* } */
+
+/* .song-result img { */
+  /* width: 60px; */ /* Handled by Avatar */
+  /* height: 60px; */ /* Handled by Avatar */
+  /* margin-right: 15px; */ /* Handled by ListItemAvatar */
+/* } */
+
+/* .song-result.selected { */
+  /* border: 2px solid #0066cc; */ /* Selection is now implicit via click */
+/* } */
+
+/* Styles for SuggestionList (keep if needed, or refactor later) */
+.suggestion {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  margin: 10px 0;
+  background-color: white;
+  border-radius: 4px;
+}
+
+.suggestion .song-info {
+  display: flex;
+  align-items: center;
+}
+
+.suggestion .song-info img {
+  width: 50px;
+  height: 50px;
+  margin-right: 15px;
+}
+
+.actions button {
+  margin-left: 10px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.actions .approve {
+  background-color: #4caf50;
+  color: white;
+}
+
+.actions .reject {
+  background-color: #f44336;
+  color: white;
+}
+
+/* Removed .message styles as MUI Alert/Snackbar are used */
+/* Removed .loading-indicator text style as MUI CircularProgress is used */
+/* Removed .quota-info style as MUI Typography is used */
+/* Removed .search-input-container as MUI components handle layout */

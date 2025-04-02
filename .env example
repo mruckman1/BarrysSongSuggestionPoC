@@ -1,0 +1,10 @@
+# Spotify API credentials
+SPOTIFY_CLIENT_ID=your_client_id_here
+SPOTIFY_CLIENT_SECRET=your_client_secret_here
+
+# MongoDB Connection (adjust if using Docker service name later)
+MONGODB_URI=mongodb://localhost:27017
+MONGODB_DB_NAME=barrys_suggestions_poc
+
+# Frontend URL (Optional - for CORS if needed beyond localhost)
+# FRONTEND_URL=http://your-deployed-frontend.com
